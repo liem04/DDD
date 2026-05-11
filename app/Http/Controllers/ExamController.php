@@ -38,15 +38,8 @@ class ExamController
         DB::beginTransaction();
 
         try {
-
             foreach ($questions as $question) {
-
                 $answer = $answers[$question->id] ?? null;
-
-                /**
-                 * ❌ CODE SMELL
-                 * TYPE SWITCHING
-                 */
 
                 // =====================================
                 // MULTIPLE CHOICE
