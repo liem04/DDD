@@ -5,6 +5,7 @@ namespace Testcenter\Application\Submission\UseCase;
 use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Question\QuestionRepository;
 use Testcenter\Domain\Score;
+use Testcenter\Domain\Submission\Event\JustHasNewSubmission;
 use Testcenter\Domain\Submission\Submission;
 use Testcenter\Domain\Submission\SubmissionRepository;
 
@@ -28,6 +29,8 @@ class SubmitExamHandler
         );
 
         $this->submissionRepository->save($submission);
+
+        event(new JustHasNewSubmission($submission));
 
         return [
             'exam_id' => $command->examId,
