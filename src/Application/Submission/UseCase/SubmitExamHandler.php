@@ -3,22 +3,19 @@
 namespace Testcenter\Application\Submission\UseCase;
 
 use InvalidArgumentException;
-use Psr\EventDispatcher\EventDispatcherInterface;
-use Testcenter\Domain\Exam\ExamID;
 use Testcenter\Domain\Exam\ExamRepository;
 use Testcenter\Domain\Exam\Exception\ExamNotFoundException;
 use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Question\QuestionRepository;
 use Testcenter\Domain\Question\QuestionType;
+use Testcenter\Domain\Shared\DomainEventPublisher;
 use Testcenter\Domain\Submission\Answer\Answer;
 use Testcenter\Domain\Submission\Answer\FillBlankAnswer;
 use Testcenter\Domain\Submission\Answer\MatchingAnswer;
 use Testcenter\Domain\Submission\Answer\SingleChoiceAnswer;
 use Testcenter\Domain\Submission\Answer\TrueFalseAnswer;
-use Testcenter\Domain\Submission\Event\JustHasNewSubmission;
 use Testcenter\Domain\Submission\Submission;
 use Testcenter\Domain\Submission\SubmissionRepository;
-use Testcenter\Domain\User\UserID;
 
 class SubmitExamHandler
 {
@@ -26,7 +23,7 @@ class SubmitExamHandler
         private readonly ExamRepository $examRepository,
         private readonly QuestionRepository $questionRepository,
         private readonly SubmissionRepository $submissionRepository,
-        private readonly EventDispatcherInterface $eventDispatcher,
+        private readonly DomainEventPublisher $publisher,
     ) {
     }
 
@@ -42,17 +39,17 @@ class SubmitExamHandler
 
         $questions = $this->questionRepository->findByIds(array_keys($command->answers));
         $answers = $this->makeAnswers($questions, $command->answers);
-        $submission = new Submission(
-            userId: new UserID($command->userId),
-            examId: new ExamID($command->examId),
+
+        $submission = Submission::submit(
+            userId: $command->userId,
+            examId: $command->examId,
             questions: $questions,
             answers: $answers,
         );
 
-        $submission->score();
         $this->submissionRepository->save($submission);
 
-        $this->eventDispatcher->dispatch(new JustHasNewSubmission($submission));
+        $this->publisher->publish(...$submission->releaseEvents());
 
         return $submission;
     }

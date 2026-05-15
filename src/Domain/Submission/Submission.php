@@ -5,8 +5,10 @@ namespace Testcenter\Domain\Submission;
 use LogicException;
 use Testcenter\Domain\Exam\ExamID;
 use Testcenter\Domain\Question\Question;
+use Testcenter\Domain\Question\QuestionCollection;
 use Testcenter\Domain\Shared\AggregateRoot;
 use Testcenter\Domain\Submission\Answer\Answer;
+use Testcenter\Domain\Submission\Answer\AnswerCollection;
 use Testcenter\Domain\User\UserID;
 
 class Submission extends AggregateRoot
@@ -17,10 +19,8 @@ class Submission extends AggregateRoot
     public function __construct(
         private readonly UserID $userId,
         private readonly ExamID $examId,
-        /** @var Question[] $questions */
-        private array $questions,
-        /** @var Answer[] $answers */
-        private readonly array $answers
+        private readonly QuestionCollection $questions,
+        private readonly AnswerCollection $answers
     ) {
     }
 
@@ -34,25 +34,31 @@ class Submission extends AggregateRoot
         return $this->examId;
     }
 
-    /**
-     * @return Answer[]
-     */
-    public function getAnswers(): array
-    {
-        return $this->answers;
+    public static function submit(
+        int $userId,
+        int $examId,
+        array $questions,
+        array $answers
+    ): self {
+        $submission = new self(
+            userId: new UserID($userId),
+            examId: new ExamID($examId),
+            questions: new QuestionCollection($questions),
+            answers: new AnswerCollection($answers)
+        );
+        $submission->score();
+
+        $submission->recordEvent(new Event\JustHasNewSubmission($submission));
+
+        return $submission;
     }
 
-    public function hasBeenScored(): bool
-    {
-        return $this->scored;
-    }
-
-    public function score(): ScoreResult
+    private function score(): ScoreResult
     {
         $totalScore = 0;
         $answerScores = [];
         foreach ($this->questions as $question) {
-            $userAnswer = $this->answers[$question->id()->value()] ?? null;
+            $userAnswer = $this->answers->findByQuestionId($question->id());
             $score = $question->grade($userAnswer);
             $answerScores[$question->id()->value()] = $score;
             $totalScore += $score->score()->value();
