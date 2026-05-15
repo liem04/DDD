@@ -3,6 +3,8 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Psr\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcher;
 use Testcenter\Domain\Exam\ExamRepository;
 use Testcenter\Domain\Question\QuestionRepository;
 use Testcenter\Domain\Submission\SubmissionRepository;
@@ -24,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
 
         $this->app->singleton(ExamRepository::class, function () {
             return app(MysqlExamRepository::class);
+        });
+
+        $this->app->singleton(EventDispatcherInterface::class, function () {
+            return app(EventDispatcher::class);
         });
     }
 }
