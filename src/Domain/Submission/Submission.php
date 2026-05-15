@@ -4,10 +4,8 @@ namespace Testcenter\Domain\Submission;
 
 use LogicException;
 use Testcenter\Domain\Exam\ExamID;
-use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Question\QuestionCollection;
 use Testcenter\Domain\Shared\AggregateRoot;
-use Testcenter\Domain\Submission\Answer\Answer;
 use Testcenter\Domain\Submission\Answer\AnswerCollection;
 use Testcenter\Domain\User\UserID;
 
@@ -46,14 +44,14 @@ class Submission extends AggregateRoot
             questions: new QuestionCollection($questions),
             answers: new AnswerCollection($answers)
         );
-        $submission->score();
+        $submission->calculateScore();
 
         $submission->recordEvent(new Event\JustHasNewSubmission($submission));
 
         return $submission;
     }
 
-    private function score(): ScoreResult
+    private function calculateScore(): ScoreResult
     {
         $totalScore = 0;
         $answerScores = [];
@@ -63,6 +61,7 @@ class Submission extends AggregateRoot
             $answerScores[$question->id()->value()] = $score;
             $totalScore += $score->score()->value();
         }
+
 
         $this->scored = true;
         $this->scoreResult = new ScoreResult($totalScore, $answerScores);
