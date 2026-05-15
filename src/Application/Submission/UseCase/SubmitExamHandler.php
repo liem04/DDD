@@ -5,6 +5,8 @@ namespace Testcenter\Application\Submission\UseCase;
 use InvalidArgumentException;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Testcenter\Domain\Exam\ExamID;
+use Testcenter\Domain\Exam\ExamRepository;
+use Testcenter\Domain\Exam\Exception\ExamNotFoundException;
 use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Question\QuestionRepository;
 use Testcenter\Domain\Question\QuestionType;
@@ -21,14 +23,23 @@ use Testcenter\Domain\User\UserID;
 class SubmitExamHandler
 {
     public function __construct(
+        private readonly ExamRepository $examRepository,
         private readonly QuestionRepository $questionRepository,
         private readonly SubmissionRepository $submissionRepository,
         private readonly EventDispatcher $eventDispatcher,
     ) {
     }
 
+    /**
+     * @throws ExamNotFoundException
+     */
     public function handle(SubmitExamCommand $command): Submission
     {
+        $exam = $this->examRepository->findById($command->examId);
+        if (!$exam->isActive()) {
+            throw new InvalidArgumentException('Exam is not active');
+        }
+
         $questions = $this->questionRepository->findByIds(array_keys($command->answers));
         $answers = $this->makeAnswers($questions, $command->answers);
         $submission = new Submission(

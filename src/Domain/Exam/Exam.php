@@ -6,12 +6,11 @@ use Testcenter\Domain\Exam\Exception\ExamCannotPublishException;
 
 class Exam
 {
-    private Title $title;
-    private Description $description;
-    private ExamStatus $examStatus;
-
     public function __construct(
         private readonly ExamID $id,
+        private ExamStatus $examStatus,
+        private Title $title,
+        private Description $description,
     ) {
     }
 
@@ -44,9 +43,9 @@ class Exam
         $this->description = $description;
     }
 
-    public function status(): ExamStatus
+    public function isActive(): bool
     {
-        return $this->examStatus;
+        return $this->examStatus === ExamStatus::ACTIVE;
     }
 
     /**

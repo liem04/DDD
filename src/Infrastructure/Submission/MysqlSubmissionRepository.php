@@ -14,7 +14,7 @@ class MysqlSubmissionRepository implements SubmissionRepository
         DB::transaction(function () use ($submission) {
             $submissionModel = \App\Models\Submission::query()
                 ->create([
-                    'user_id' => $submission->getUserId()->id(),
+                    'user_id' => $submission->getUserId()->value(),
                     'exam_id' => $submission->getExamId()->value(),
                     'score' => $submission->getScoreResult()->total(),
                     'status' => 'submitted',
