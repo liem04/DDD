@@ -20,7 +20,7 @@ class MysqlSubmissionRepository implements SubmissionRepository
                     'status' => 'submitted',
                     'submitted_at' => now(),
                 ]);
-            foreach ($submission->getAnswers() as $questionId => $answer) {
+            foreach ($submission->getAnswers()->all() as $questionId => $answer) {
                 SubmissionAnswer::query()
                     ->create([
                         'submission_id' => $submissionModel->id,
@@ -30,7 +30,7 @@ class MysqlSubmissionRepository implements SubmissionRepository
                     ]);
             }
 
-            return $submissionModel;
+            return $submission;
         });
     }
 

@@ -32,6 +32,16 @@ class Submission extends AggregateRoot
         return $this->examId;
     }
 
+    public function getQuestions(): QuestionCollection
+    {
+        return $this->questions;
+    }
+
+    public function getAnswers(): AnswerCollection
+    {
+        return $this->answers;
+    }
+
     public static function submit(
         int $userId,
         int $examId,

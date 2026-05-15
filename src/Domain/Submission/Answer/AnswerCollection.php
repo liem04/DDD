@@ -49,7 +49,7 @@ class AnswerCollection implements Countable, \IteratorAggregate
      */
     public function all(): array
     {
-        return array_values($this->answers);
+        return $this->answers;
     }
 
     public function count(): int
