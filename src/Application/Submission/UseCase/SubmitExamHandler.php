@@ -3,7 +3,7 @@
 namespace Testcenter\Application\Submission\UseCase;
 
 use InvalidArgumentException;
-use Symfony\Component\EventDispatcher\EventDispatcher;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use Testcenter\Domain\Exam\ExamID;
 use Testcenter\Domain\Exam\ExamRepository;
 use Testcenter\Domain\Exam\Exception\ExamNotFoundException;
@@ -26,7 +26,7 @@ class SubmitExamHandler
         private readonly ExamRepository $examRepository,
         private readonly QuestionRepository $questionRepository,
         private readonly SubmissionRepository $submissionRepository,
-        private readonly EventDispatcher $eventDispatcher,
+        private readonly EventDispatcherInterface $eventDispatcher,
     ) {
     }
 
