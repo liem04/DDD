@@ -15,12 +15,11 @@ class TrueFalseQuestion extends Question
 {
     public function __construct(
         QuestionID $id,
-        QuestionType $type,
         QuestionText $text,
         Score $score,
         private readonly bool $correct,
     ) {
-        parent::__construct($id, $type, $text, $score);
+        parent::__construct($id, QuestionType::TRUE_FALSE, $text, $score);
     }
 
     public function grade(Answer $answer): GradeResult

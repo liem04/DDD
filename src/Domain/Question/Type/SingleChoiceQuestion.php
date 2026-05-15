@@ -16,13 +16,12 @@ class SingleChoiceQuestion extends Question
 {
     public function __construct(
         QuestionID $id,
-        QuestionType $type,
         QuestionText $text,
         Score $score,
         private readonly OptionCollection $options,
         private readonly string $correct,
     ) {
-        parent::__construct($id, $type, $text, $score);
+        parent::__construct($id, QuestionType::SINGLE_CHOICE, $text, $score);
     }
 
     public function grade(Answer $answer): GradeResult

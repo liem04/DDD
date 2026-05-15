@@ -163,7 +163,7 @@ class ExamController
             'answers' => ['required', 'array'],
         ]);
 
-        $result = $this->submitHandler->handle(
+        $submission = $this->submitHandler->handle(
             new SubmitExamCommand(
                 examId: $request->exam_id,
                 userId: 1, // giả lập auth
@@ -173,7 +173,11 @@ class ExamController
 
         return response()->json([
             'success' => true,
-            'data' => $result,
+            'data' => [
+                'message' => 'Submit exam successfully',
+                'exam_id' => $request->exam_id,
+                'score' => $submission->getScoreResult()->total(),
+            ],
         ]);
     }
 }

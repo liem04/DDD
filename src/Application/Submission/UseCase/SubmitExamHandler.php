@@ -3,10 +3,11 @@
 namespace Testcenter\Application\Submission\UseCase;
 
 use InvalidArgumentException;
+use Symfony\Component\EventDispatcher\EventDispatcher;
+use Testcenter\Domain\Exam\ExamID;
 use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Question\QuestionRepository;
 use Testcenter\Domain\Question\QuestionType;
-use Testcenter\Domain\Score;
 use Testcenter\Domain\Submission\Answer\Answer;
 use Testcenter\Domain\Submission\Answer\FillBlankAnswer;
 use Testcenter\Domain\Submission\Answer\MatchingAnswer;
@@ -15,51 +16,34 @@ use Testcenter\Domain\Submission\Answer\TrueFalseAnswer;
 use Testcenter\Domain\Submission\Event\JustHasNewSubmission;
 use Testcenter\Domain\Submission\Submission;
 use Testcenter\Domain\Submission\SubmissionRepository;
+use Testcenter\Domain\User\UserID;
 
 class SubmitExamHandler
 {
     public function __construct(
         private readonly QuestionRepository $questionRepository,
         private readonly SubmissionRepository $submissionRepository,
+        private readonly EventDispatcher $eventDispatcher,
     ) {
     }
 
-    public function handle(SubmitExamCommand $command): array
+    public function handle(SubmitExamCommand $command): Submission
     {
         $questions = $this->questionRepository->findByIds(array_keys($command->answers));
         $answers = $this->makeAnswers($questions, $command->answers);
         $submission = new Submission(
-            userId: $command->userId,
-            examId: $command->examId,
+            userId: new UserID($command->userId),
+            examId: new ExamID($command->examId),
             questions: $questions,
             answers: $answers,
         );
 
-        $scoreResult = $submission->score();
-
+        $submission->score();
         $this->submissionRepository->save($submission);
 
-        event(new JustHasNewSubmission($submission));
+        $this->eventDispatcher->dispatch(new JustHasNewSubmission($submission));
 
-        return [
-            'exam_id' => $command->examId,
-            'user_id' => $command->userId,
-            'score' => $scoreResult->total(),
-        ];
-    }
-
-    private function score(array $questions, array $answers): float
-    {
-        $totalScore = 0;
-        /** @var Question $question */
-        foreach ($questions as $question) {
-            $userAnswer = $answers[$question->id()->value()] ?? null;
-            $score = $question->grade($userAnswer);
-
-            $totalScore += $score->score()->value();
-        }
-
-        return $totalScore;
+        return $submission;
     }
 
     private function makeAnswers(array $questions, array $userAnswers): array

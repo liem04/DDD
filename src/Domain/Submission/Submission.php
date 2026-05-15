@@ -2,8 +2,10 @@
 
 namespace Testcenter\Domain\Submission;
 
+use Testcenter\Domain\Exam\ExamID;
 use Testcenter\Domain\Question\Question;
 use Testcenter\Domain\Submission\Answer\Answer;
+use Testcenter\Domain\User\UserID;
 
 class Submission
 {
@@ -11,8 +13,8 @@ class Submission
     private ScoreResult $scoreResult;
 
     public function __construct(
-        private readonly int $userId,
-        private readonly int $examId,
+        private readonly UserID $userId,
+        private readonly ExamID $examId,
         /** @var Question[] $questions */
         private array $questions,
         /** @var Answer[] $answers */
@@ -20,12 +22,12 @@ class Submission
     ) {
     }
 
-    public function getUserId(): int
+    public function getUserId(): UserID
     {
         return $this->userId;
     }
 
-    public function getExamId(): int
+    public function getExamId(): ExamID
     {
         return $this->examId;
     }

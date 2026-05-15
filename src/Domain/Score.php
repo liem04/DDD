@@ -5,7 +5,7 @@ namespace Testcenter\Domain;
 class Score
 {
     public function __construct(
-        public readonly float $value
+        private readonly float $value
     ) {
         if ($value < 0) {
             throw new \InvalidArgumentException(

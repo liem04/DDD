@@ -14,8 +14,8 @@ class MysqlSubmissionRepository implements SubmissionRepository
         DB::transaction(function () use ($submission) {
             $submissionModel = \App\Models\Submission::query()
                 ->create([
-                    'user_id' => $submission->getUserId(),
-                    'exam_id' => $submission->getExamId(),
+                    'user_id' => $submission->getUserId()->id(),
+                    'exam_id' => $submission->getExamId()->value(),
                     'score' => $submission->getScoreResult()->total(),
                     'status' => 'submitted',
                     'submitted_at' => now(),
@@ -26,7 +26,7 @@ class MysqlSubmissionRepository implements SubmissionRepository
                         'submission_id' => $submissionModel->id,
                         'question_id' => $questionId,
                         'answer' => $this->normalizeAnswer($answer->value()),
-                        'score' => $submission->getScoreResult()->answerScores[$questionId]->score()->value(),
+                        'score' => $submission->getScoreResult()->answerScores()[$questionId]->score()->value(),
                     ]);
             }
 

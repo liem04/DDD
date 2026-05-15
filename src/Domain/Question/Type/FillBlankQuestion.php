@@ -16,12 +16,11 @@ class FillBlankQuestion extends Question
 {
     public function __construct(
         QuestionID $id,
-        QuestionType $type,
         QuestionText $text,
         Score $score,
         private readonly AcceptedAnswers $acceptedAnswers
     ) {
-        parent::__construct($id, $type, $text, $score);
+        parent::__construct($id, QuestionType::FILL_BLANK, $text, $score);
     }
 
     public function grade(Answer $answer): GradeResult
