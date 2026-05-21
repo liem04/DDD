@@ -1,66 +1,473 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Exam Engine — MVC vs DDD + Clean Architecture Workshop
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 🎯 Goal
 
-## About Laravel
+Repository này được xây dựng nhằm mục đích:
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+* Demo sự khác biệt giữa:
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+  * Traditional MVC
+  * DDD + Clean Architecture
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+* Training team backend về:
 
-## Learning Laravel
+  * Rich Domain Model
+  * Entity behavior
+  * Value Object
+  * Aggregate Root
+  * Repository Pattern
+  * Domain Event
+  * Infrastructure separation
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+* Minh họa:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+  * Vì sao business complexity làm MVC phình logic rất nhanh
+  * Vì sao DDD phù hợp với các bài toán enterprise
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+# 📚 Business Problem
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+Đây là hệ thống Exam Engine.
 
-### Premium Partners
+System hỗ trợ nhiều loại câu hỏi:
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+* multiple_choice
+* true_false
+* fill_blank
+* essay
+* matching
 
-## Contributing
+Mỗi loại:
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+* có cấu trúc answer khác nhau
+* có logic grading khác nhau
+* có rule business khác nhau
 
-## Code of Conduct
+---
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# ❌ Traditional MVC Problem
 
-## Security Vulnerabilities
+Ban đầu MVC rất ổn:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```php
+if ($question->type === 'multiple_choice') {
+    ...
+}
+```
 
-## License
+Nhưng khi business phát triển:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+* partial score
+* matching score
+* AI essay scoring
+* anti-cheat
+* time bonus
+* negative marking
+* adaptive exam
+
+Logic sẽ bắt đầu:
+
+* mọc if-else everywhere
+* service class become God object
+* duplicated logic
+* khó test
+* khó mở rộng
+
+---
+
+# ✅ DDD + Clean Architecture Solution
+
+Repository này implement:
+
+* Rich Domain Model
+* Polymorphism
+* Aggregate Root
+* Value Object
+* Domain Event
+* Repository abstraction
+* Infrastructure isolation
+
+---
+
+# 🏗️ Architecture
+
+```text
+src
+├── Domain
+│   ├── Question
+│   ├── Submission
+│   ├── Shared
+│   └── Score
+│
+├── Application
+│   └── Submission
+│
+├── Infrastructure
+│   ├── Question
+│   ├── Submission
+│   └── Event
+│
+└── Presentation
+    └── Http
+```
+
+---
+
+# 🎯 Layer Responsibility
+
+## Domain
+
+Contains:
+
+* business rules
+* entities
+* value objects
+* aggregate roots
+* domain events
+
+Domain DOES NOT know:
+
+* Laravel
+* Eloquent
+* HTTP
+* MySQL
+
+---
+
+## Application
+
+Contains:
+
+* use cases
+* orchestration
+* transaction boundary
+
+No business logic here.
+
+---
+
+## Infrastructure
+
+Contains:
+
+* Eloquent
+* repositories implementation
+* event publisher
+* persistence mapper
+
+---
+
+## Presentation
+
+Contains:
+
+* controller
+* request validation
+* API response
+
+---
+
+# 🧠 Important DDD Concepts
+
+---
+
+## 1. Entity ≠ Database Table
+
+Ví dụ:
+
+```text
+Question
+```
+
+Là business concept.
+
+KHÔNG phải:
+
+* Eloquent model
+* database row
+
+---
+
+## 2. Rich Domain Model
+
+Business behavior nằm trong entity:
+
+```php
+$question->grade($answer)
+```
+
+KHÔNG nằm trong:
+
+* controller
+* service
+* helper
+
+---
+
+## 3. Polymorphism
+
+Mỗi question type tự implement grading riêng:
+
+```php
+MultipleChoiceQuestion
+MatchingQuestion
+TrueFalseQuestion
+```
+
+Thay vì:
+
+```php
+if ($type === ...)
+```
+
+---
+
+## 4. Value Objects
+
+Examples:
+
+* Score
+* QuestionID
+* QuestionType
+* MatchingPairs
+
+Giúp:
+
+* expressive model
+* validation encapsulation
+* immutable business concepts
+
+---
+
+## 5. Aggregate Root
+
+```text
+Submission
+```
+
+Protect business invariant:
+
+* answer uniqueness
+* valid question reference
+* score consistency
+
+---
+
+## 6. Domain Event
+
+Business event:
+
+```text
+SubmissionCreated
+```
+
+Được emit từ domain behavior.
+
+KHÔNG emit từ controller.
+
+---
+
+# 🚀 Installation
+
+---
+
+## 1. Clone project
+
+```bash
+git clone <repo>
+```
+
+---
+
+## 2. Install dependencies
+
+```bash
+composer install
+```
+
+---
+
+## 3. Setup environment
+
+```bash
+cp .env.example .env
+```
+
+Update DB config:
+
+```env
+DB_DATABASE=exam_engine
+DB_USERNAME=root
+DB_PASSWORD=
+```
+
+---
+
+## 4. Generate app key
+
+```bash
+php artisan key:generate
+```
+
+---
+
+# 🗄️ Database Setup
+
+---
+
+## Run migration
+
+```bash
+php artisan migrate
+```
+
+---
+
+## Run seeders
+
+```bash
+php artisan db:seed
+```
+
+Seeder sẽ tạo:
+
+* sample questions
+* sample exams
+* sample submissions
+
+---
+
+# 🧪 Run Unit Tests
+
+```bash
+php artisan test
+```
+
+---
+
+# 📬 API Example
+
+## Submit Exam
+
+### Request
+
+```bash
+curl --location 'http://localhost/api/exams/submit' \
+--header 'Content-Type: application/json' \
+--data '{
+    "user_id": 1,
+    "exam_id": 1,
+    "answers": [
+        {
+            "question_id": 1,
+            "type": "multiple_choice",
+            "answer": "B"
+        },
+        {
+            "question_id": 2,
+            "type": "true_false",
+            "answer": true
+        },
+        {
+            "question_id": 3,
+            "type": "fill_blank",
+            "answer": "Laravel"
+        },
+        {
+            "question_id": 4,
+            "type": "matching",
+            "answer": {
+                "A": "1",
+                "B": "2"
+            }
+        }
+    ]
+}'
+```
+
+---
+
+# 🧪 Workshop Flow
+
+---
+
+## Part 1 — Traditional MVC
+
+Demo:
+
+* fat controller
+* giant service
+* if-else explosion
+* Eloquent-driven business logic
+
+---
+
+## Part 2 — Problems
+
+Show:
+
+* adding new question type
+* modifying scoring rule
+* duplicated logic
+* testing pain
+
+---
+
+## Part 3 — Refactor to DDD
+
+Introduce:
+
+* Entity
+* Value Object
+* Aggregate
+* Repository
+* Domain Event
+
+---
+
+## Part 4 — Final Architecture
+
+Show:
+
+* clean dependency direction
+* infrastructure isolation
+* polymorphism
+* rich domain model
+
+---
+
+# 💥 Key Takeaways
+
+---
+
+## MVC focuses on:
+
+```text
+database structure
+```
+
+---
+
+## DDD focuses on:
+
+```text
+business behavior
+```
+
+---
+
+## CRUD complexity ≠ business complexity
+
+DDD becomes valuable when:
+
+```text
+business rules grow faster than database schema
+```
+
+---
+
+# 🎯 Final Insight
+
+> DDD không giải quyết CRUD complexity
+> DDD giải quyết behavior complexity.
