@@ -12,6 +12,8 @@ use Testcenter\Domain\Shared\DomainEventPublisher;
 use Testcenter\Domain\Submission\Answer\Answer;
 use Testcenter\Domain\Submission\Answer\FillBlankAnswer;
 use Testcenter\Domain\Submission\Answer\MatchingAnswer;
+use Testcenter\Domain\Submission\Answer\MultipleChoiceAnswer;
+use Testcenter\Domain\Submission\Answer\OrderingAnswer;
 use Testcenter\Domain\Submission\Answer\SingleChoiceAnswer;
 use Testcenter\Domain\Submission\Answer\TrueFalseAnswer;
 use Testcenter\Domain\Submission\Submission;
@@ -72,8 +74,10 @@ class SubmitExamHandler
         return match ($question->type()) {
             QuestionType::TRUE_FALSE => new TrueFalseAnswer($userAnswer),
             QuestionType::SINGLE_CHOICE => new SingleChoiceAnswer($userAnswer),
+            QuestionType::MULTIPLE_CHOICE => new MultipleChoiceAnswer($userAnswer),
             QuestionType::FILL_BLANK => new FillBlankAnswer($userAnswer),
             QuestionType::MATCHING => new MatchingAnswer($userAnswer),
+            QuestionType::ORDERING => new OrderingAnswer($userAnswer),
             default => throw new InvalidArgumentException('Unsupported question type'),
         };
     }
